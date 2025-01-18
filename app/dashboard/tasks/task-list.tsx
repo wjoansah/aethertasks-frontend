@@ -19,9 +19,9 @@ export function TaskList({tasks, currentUser}: { tasks: Task[], currentUser: Use
 
     return (
         <div className="space-y-4">
-            {tasks.map((task) => (
+            {tasks.map((task, idx) => (
                 <div
-                    key={task.id}
+                    key={idx}
                     className="rounded-lg border p-4 space-y-2"
                 >
                     <div className="flex items-center justify-between">
@@ -46,7 +46,7 @@ export function TaskList({tasks, currentUser}: { tasks: Task[], currentUser: Use
                             <p>Comment: {task.user_comment}</p>
                         )}
                     </div>
-                    {currentUser.role === 'user' && task.status === 'pending' && (
+                    {currentUser.role === 'user' && task.status === 'open' && (
                         <Dialog open={open} onOpenChange={setOpen}>
                             <DialogTrigger asChild>
                                 <Button
@@ -66,7 +66,7 @@ export function TaskList({tasks, currentUser}: { tasks: Task[], currentUser: Use
                                         if (!selectedTask) return
                                         const formData = new FormData(e.currentTarget)
                                         await updateTaskStatus(
-                                            selectedTask.id,
+                                            selectedTask.name,
                                             'completed',
                                             formData.get('comment') as string
                                         )

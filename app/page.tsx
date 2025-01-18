@@ -31,10 +31,11 @@ export default function Home() {
 
     if (auth.isAuthenticated) {
         const appState: Partial<AppState> = {};
+        const adminGroupName = process.env.NEXT_PUBLIC_ADMIN_GROUP_NAME ?? ''
         if (auth.user?.id_token) {
             const decodedToken = decodeJwt(auth.user.id_token);
             if (decodedToken !== null) {
-                appState.isInAdminGroup = process.env.NEXT_PUBLIC_ADMIN_GROUP_NAME!! in decodedToken['cognito:groups'];
+                appState.isInAdminGroup = adminGroupName in decodedToken['cognito:groups'];
             }
         }
         if (auth.user && auth.user.profile) {
