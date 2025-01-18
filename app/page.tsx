@@ -1,101 +1,95 @@
-import Image from "next/image";
+"use client"
+
+import {useAuth} from "react-oidc-context";
+import {Button} from "@/components/ui/button";
+import {GalleryVerticalEnd} from "lucide-react";
+import {redirect} from "next/navigation";
+import {useContext} from "react";
+import {AppContext, AppState} from "@/app/providers/appContext";
+import {decodeJwt} from "@/lib/utils";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    const auth = useAuth()
+    const context = useContext(AppContext)
+    //
+    // const signOutRedirect = () => {
+    //     const clientId = process.env.NEXT_PUBLIC_CLIENT_ID;
+    //     const logoutUri = "http://localhost:3000";
+    //     const cognitoDomain = process.env.NEXT_PUBLIC_COGNITO_DOMAIN;
+    //     window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&redirect_uri=${encodeURIComponent(logoutUri)}&response_type=code`;
+    // };
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+
+    if (auth.isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (auth.error) {
+        return <div>Encountering error... {auth.error.message}</div>;
+    }
+
+
+    if (auth.isAuthenticated) {
+        const appState: Partial<AppState> = {};
+        if (auth.user?.id_token) {
+            const decodedToken = decodeJwt(auth.user.id_token);
+            if (decodedToken !== null) {
+                appState.isInAdminGroup = process.env.NEXT_PUBLIC_ADMIN_GROUP_NAME!! in decodedToken['cognito:groups'];
+            }
+        }
+        if (auth.user && auth.user.profile) {
+            appState.user = auth.user.profile;
+            context?.setState(appState as AppState);
+        }
+        redirect("/dashboard");
+        // return (
+        //     <div>
+        //         <pre> Hello: {auth.user?.profile.email} </pre>
+        //         <pre> ID Token: {auth.user?.id_token} </pre>
+        //         <pre> Access Token: {auth.user?.access_token} </pre>
+        //         <pre> Refresh Token: {auth.user?.refresh_token} </pre>
+        //
+        //         <button onClick={() => auth.removeUser()}>Sign out</button>
+        //     </div>
+        // );
+    }
+    return (
+        <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
+            <div className="w-full max-w-sm">
+                <div className="flex flex-col gap-6">
+                    <div>
+                        <div className="flex flex-col gap-6">
+                            <div className="flex flex-col items-center gap-2">
+                                <a
+                                    href="#"
+                                    className="flex flex-col items-center gap-2 font-medium"
+                                >
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-md">
+                                        <GalleryVerticalEnd className="size-6"/>
+                                    </div>
+                                    <span className="sr-only">AetherTasks</span>
+                                </a>
+                                <h1 className="text-xl font-bold">Welcome to AetherTasks.</h1>
+                            </div>
+                            <div className="flex flex-col gap-6">
+                                <Button className="w-full" onClick={() => auth.signinRedirect()}>
+                                    Login
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary  ">
+                        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
+                        and <a href="#">Privacy Policy</a>.
+                    </div>
+                </div>
+            </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+    );
 }
+
+// <div>
+//     <button onClick={() => auth.signinRedirect()}>Sign in</button>
+//     <button onClick={() => signOutRedirect()}>Sign out</button>
+// </div>
