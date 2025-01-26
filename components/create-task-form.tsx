@@ -1,6 +1,6 @@
 'use client'
 
-import {useContext, useState} from 'react'
+import {useState} from 'react'
 import {Button} from '@/components/ui/button'
 import {
     Dialog,
@@ -20,30 +20,27 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import {createTask} from '@/actions/tasks'
-import {AppContext} from "@/app/providers/appContext";
-
-type User = {
-    id: string
-    name: string
-    email: string
-}
+import {useStore} from "@/store";
+import {User} from "@/types";
+import {useAuth} from "react-oidc-context";
 
 export function CreateTaskForm({users}: { users: User[] }) {
+    const store = useStore()
+    const auth = useAuth()
     const [open, setOpen] = useState(false)
-    const context = useContext(AppContext)
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button>Create Task</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px]" aria-describedby="Create new task">
                 <DialogHeader>
                     <DialogTitle>Create New Task</DialogTitle>
                 </DialogHeader>
                 <form
                     action={async (formData) => {
-                        await createTask(formData)
+                        await createTask(formData, auth.user?.id_token!)
                         setOpen(false)
                     }}
                     className="space-y-4"
@@ -54,11 +51,11 @@ export function CreateTaskForm({users}: { users: User[] }) {
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="description">Description</Label>
-                        <Textarea id="description" name="description" required/>
+                        <Textarea id="description" name="description" aria-describedby="description" required/>
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="deadline">Deadline</Label>
-                        <Input id="deadline" name="deadline" type="date" required/>
+                        <Input id="deadline" name="deadline" type="datetime-local" required/>
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="responsibility">Assign To</Label>
@@ -67,15 +64,15 @@ export function CreateTaskForm({users}: { users: User[] }) {
                                 <SelectValue placeholder="Select user"/>
                             </SelectTrigger>
                             <SelectContent>
-                                {users.map((user) => (
-                                    <SelectItem key={user.id} value={user.id}>
+                                {users && users.map((user, idx) => (
+                                    <SelectItem key={idx} value={user.email}>
                                         {user.name}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                     </div>
-                    {context?.state?.isInAdminGroup && (
+                    {store.currentUserInAdminGroup && (
                         <Button type="submit" className="w-full">
                             Create Task
                         </Button>
