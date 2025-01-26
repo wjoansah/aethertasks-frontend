@@ -22,8 +22,9 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar"
 import {UserProfile} from "oidc-client-ts";
+import {redirect} from 'next/navigation'
 
-export function NavUser({user, onLogout}: { user?: UserProfile, onLogout: () => void }) {
+export function NavUser({user, onLogoutAction}: { user?: UserProfile, onLogoutAction: () => void }) {
     const {isMobile} = useSidebar()
 
     return (
@@ -38,7 +39,7 @@ export function NavUser({user, onLogout}: { user?: UserProfile, onLogout: () => 
                             >
                                 <Avatar className="h-8 w-8 rounded-lg">
                                     <AvatarFallback
-                                        className="rounded-lg">{user.email.slice(0, 1).toUpperCase()}</AvatarFallback>
+                                        className="rounded-lg">{user.email.slice(0, 2).toUpperCase()}</AvatarFallback>
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
                                     <span className="truncate text-sm">{user.email}</span>
@@ -52,7 +53,10 @@ export function NavUser({user, onLogout}: { user?: UserProfile, onLogout: () => 
                             align="end"
                             sideOffset={4}
                         >
-                            <DropdownMenuItem onClick={() => onLogout()}>
+                            <DropdownMenuItem onClick={() => {
+                                onLogoutAction();
+                                redirect("/")
+                            }}>
                                 <LogOut/>
                                 Log out
                             </DropdownMenuItem>
