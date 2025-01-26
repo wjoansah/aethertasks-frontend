@@ -1,14 +1,15 @@
 export type User = {
-    id: string
     name: string
     email: string
-    role: 'admin' | 'user'
 }
 
+export type TaskStatus = 'open' | 'closed' | 'completed'
+
 export type Task = {
+    id: string
     name: string
     description: string
-    status: 'open' | 'closed' | 'completed'
+    status: TaskStatus,
     deadline: string
     responsibility: string
     completed_at?: string
