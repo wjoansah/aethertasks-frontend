@@ -1,23 +1,37 @@
+"use client"
 
 import {CreateTaskForm} from "@/components/create-task-form";
 import {getTasks} from "@/actions/tasks";
 import {getUsers} from "@/actions/users";
 import {TaskList} from "@/app/dashboard/tasks/task-list";
-import {User} from "@/types";
+import {User, Task} from "@/types";
 import {SidebarTrigger} from "@/components/ui/sidebar";
 import {Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList} from "@/components/ui/breadcrumb";
 import {Separator} from "@/components/ui/separator";
+import {useEffect, useState} from "react";
+import {useAuth} from "react-oidc-context";
+import {useStore} from '@/store'
 
-// Simulated authentication
-const currentUser: User = {
-    id: '1',
-    role: 'admin',
-    name: 'something',
-    email: 'something@example.com',
-}
-export default async function TasksPage() {
-    const tasks = await getTasks(currentUser.role === 'user' ? currentUser.id : undefined)
-    const users = currentUser.role === 'admin' ? await getUsers() : []
+export default function TasksPage() {
+    const auth = useAuth()
+    const store = useStore()
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
+
+    useEffect(() => {
+        const getTasksOnLoad = async () => {
+            const tasks = await getTasks(store.currentUserInAdminGroup, auth.user?.id_token!)
+            if (store.currentUserInAdminGroup) {
+                const response = await getUsers(auth.user?.id_token!)
+                if (response.success) {
+                    const filteredUsers = response.data.filter((user: User) => !(store.currentUserInAdminGroup && user.email == store.userProfile?.email))
+                    setUsers(filteredUsers);
+                }
+            }
+            setTasks(tasks);
+        }
+        getTasksOnLoad()
+    }, [auth]);
 
     return (
         <>
@@ -41,11 +55,11 @@ export default async function TasksPage() {
                 <div className="container mx-auto py-6 space-y-8">
                     <div className="flex justify-between items-center">
                         <h1 className="text-3xl font-bold">Tasks</h1>
-                        {currentUser.role === 'admin' && (
+                        {store.currentUserInAdminGroup && (
                             <CreateTaskForm users={users}/>
                         )}
                     </div>
-                    <TaskList tasks={tasks} currentUser={currentUser}/>
+                    <TaskList tasks={tasks} currentUserIsAdmin={store.currentUserInAdminGroup} users={users}/>
                 </div>
             </div>
         </>
