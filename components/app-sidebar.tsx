@@ -25,6 +25,7 @@ const data = {
             url: "/dashboard/tasks",
             icon: SquareTerminal,
             isActive: true,
+            requiresAdminAccess: false,
             items: [
                 {
                     title: "Open",
@@ -44,6 +45,7 @@ const data = {
             title: "Users",
             url: "/dashboard/users",
             icon: Bot,
+            requiresAdminAccess: true,
             items: [
                 {
                     title: "All",
@@ -82,7 +84,7 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
                 <NavMain items={data.navMain}/>
             </SidebarContent>
             <SidebarFooter>
-                <NavUser user={auth.user?.profile} onLogout={auth.removeUser}/>
+                <NavUser user={auth.user?.profile} onLogoutAction={auth.removeUser}/>
             </SidebarFooter>
             <SidebarRail/>
         </Sidebar>
