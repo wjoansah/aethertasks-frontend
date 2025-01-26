@@ -2,7 +2,6 @@ import type {Metadata} from "next";
 import {Geist, Geist_Mono} from "next/font/google";
 import "./globals.css";
 import {CognitoAuthProvider} from "@/providers/CognitoAuthProvider";
-import {AppProvider} from "@/app/providers/appContext";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -19,22 +18,16 @@ export const metadata: Metadata = {
     description: "Tasks managed in the cloud.",
 };
 
-export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
-    children: React.ReactNode;
-}>) {
+export default function RootLayout({children,}: Readonly<{ children: React.ReactNode; }>) {
     return (
-        <AppProvider>
-            <CognitoAuthProvider>
-                <html lang="en">
-                <body
-                    className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-                >
-                {children}
-                </body>
-                </html>
-            </CognitoAuthProvider>
-        </AppProvider>
+        <CognitoAuthProvider>
+            <html lang="en">
+            <body
+                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+            >
+            {children}
+            </body>
+            </html>
+        </CognitoAuthProvider>
     );
 }

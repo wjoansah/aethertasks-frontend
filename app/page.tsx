@@ -4,21 +4,15 @@ import {useAuth} from "react-oidc-context";
 import {Button} from "@/components/ui/button";
 import {GalleryVerticalEnd} from "lucide-react";
 import {redirect} from "next/navigation";
-import {useContext} from "react";
-import {AppContext, AppState} from "@/app/providers/appContext";
 import {decodeJwt} from "@/lib/utils";
+import {useStore} from '@/store'
+
+
+const adminGroupName = process.env.NEXT_PUBLIC_ADMIN_GROUP_NAME!
 
 export default function Home() {
+    const store = useStore()
     const auth = useAuth()
-    const context = useContext(AppContext)
-    //
-    // const signOutRedirect = () => {
-    //     const clientId = process.env.NEXT_PUBLIC_CLIENT_ID;
-    //     const logoutUri = "http://localhost:3000";
-    //     const cognitoDomain = process.env.NEXT_PUBLIC_COGNITO_DOMAIN;
-    //     window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&redirect_uri=${encodeURIComponent(logoutUri)}&response_type=code`;
-    // };
-
 
     if (auth.isLoading) {
         return <div>Loading...</div>;
@@ -30,29 +24,16 @@ export default function Home() {
 
 
     if (auth.isAuthenticated) {
-        const appState: Partial<AppState> = {};
-        const adminGroupName = process.env.NEXT_PUBLIC_ADMIN_GROUP_NAME ?? ''
         if (auth.user?.id_token) {
-            const decodedToken = decodeJwt(auth.user.id_token);
-            if (decodedToken !== null) {
-                appState.isInAdminGroup = adminGroupName in decodedToken['cognito:groups'];
-            }
+            const decodedToken = decodeJwt(auth.user.id_token)!;
+            const userCognitoGroups = decodedToken['cognito:groups'];
+            const isInAdminGroup = userCognitoGroups ? userCognitoGroups.includes(adminGroupName) : false;
+            store.setCurrentUserInAdminGroup(isInAdminGroup)
         }
         if (auth.user && auth.user.profile) {
-            appState.user = auth.user.profile;
-            context?.setState(appState as AppState);
+            store.setUserProfile(auth.user.profile)
         }
         redirect("/dashboard");
-        // return (
-        //     <div>
-        //         <pre> Hello: {auth.user?.profile.email} </pre>
-        //         <pre> ID Token: {auth.user?.id_token} </pre>
-        //         <pre> Access Token: {auth.user?.access_token} </pre>
-        //         <pre> Refresh Token: {auth.user?.refresh_token} </pre>
-        //
-        //         <button onClick={() => auth.removeUser()}>Sign out</button>
-        //     </div>
-        // );
     }
     return (
         <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
