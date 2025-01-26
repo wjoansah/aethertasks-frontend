@@ -1,33 +1,53 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
-// import { User } from '@/types'
+import {revalidatePath} from 'next/cache'
+import {User} from "@/types";
 
-type User = {
-    id: string
-    name: string
-    email: string
-    role: 'user' | 'admin'
-}
+const baseUrl = process.env.NEXT_PUBLIC_API_GATEWAY!
 
-// Simulated database
-let users: User[] = []
-let lastId = 0
-
-export async function createUser(formData: FormData) {
+export async function createUser(formData: FormData, idToken: string) {
     const user: User = {
-        id: String(++lastId),
         name: formData.get('name') as string,
         email: formData.get('email') as string,
-        role: 'user',
     }
 
-    users.push(user)
-    revalidatePath('/users')
-    return { success: true, data: users }
+    const response = await fetch(`${baseUrl}/users/invite`, {
+        method: 'POST',
+        body: JSON.stringify(user),
+        headers: {
+            'Authorization': idToken
+        }
+    })
+
+    if (!response.ok) {
+        return {success: false, error: response.statusText}
+    }
+
+    const body = await response.json()
+
+    revalidatePath('/dashboard/users')
+    return {success: true, data: body}
 }
 
-export async function getUsers() {
-    return users
-}
+export async function getUsers(idToken: string) {
+    const response = await fetch(`${baseUrl}/users`, {
+        headers: {
+            'Authorization': idToken
+        }
+    })
+    if (!response.ok) {
+        return {success: false, error: response.statusText}
+    }
+    const data = await response.json()
+    const users = data.users.map((response: any) => {
+        const emailAttribute = response.Attributes.find((attr: any) => attr.Name === "email")
+        const nameAttribute = response.Attributes.find((attr: any) => attr.Name === "name")
 
+        revalidatePath('/dashboard/users')
+        return {
+            email: emailAttribute.Value,
+            name: nameAttribute.Value
+        }
+    })
+    return {success: true, data: users}
+}
