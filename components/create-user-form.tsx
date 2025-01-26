@@ -1,6 +1,6 @@
 'use client'
 
-import {useContext, useState} from 'react'
+import {useState} from 'react'
 import {Button} from '@/components/ui/button'
 import {
     Dialog,
@@ -12,11 +12,13 @@ import {
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {createUser} from '@/actions/users'
-import {AppContext} from "@/app/providers/appContext";
+import {useStore} from '@/store'
+import {useAuth} from "react-oidc-context";
 
 export function CreateUserForm() {
+    const store = useStore()
+    const auth = useAuth()
     const [open, setOpen] = useState(false)
-    const context = useContext(AppContext)
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -29,7 +31,7 @@ export function CreateUserForm() {
                 </DialogHeader>
                 <form
                     action={async (formData) => {
-                        await createUser(formData)
+                        await createUser(formData, auth.user?.id_token!)
                         setOpen(false)
                     }}
                     className="space-y-4"
@@ -42,7 +44,7 @@ export function CreateUserForm() {
                         <Label htmlFor="email">Email</Label>
                         <Input id="email" name="email" type="email" required/>
                     </div>
-                    {context?.state?.isInAdminGroup && (
+                    {store.currentUserInAdminGroup && (
                         <Button type="submit" className="w-full">
                             Invite User
                         </Button>
