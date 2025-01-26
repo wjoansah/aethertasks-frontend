@@ -1,21 +1,29 @@
+"use client"
+
 import {getUsers} from '@/actions/users'
 import {CreateUserForm} from "@/components/create-user-form";
 import {SidebarTrigger} from "@/components/ui/sidebar";
 import {Separator} from "@/components/ui/separator";
 import {Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList} from "@/components/ui/breadcrumb";
+import {User} from "@/types";
+import {useStore} from "@/store";
+import {useEffect, useState} from "react";
+import {useAuth} from "react-oidc-context";
 
-// Simulated authentication
-const currentUser = {
-    role: 'admin'
-}
 
-export default async function UsersPage() {
-    // Redirect if not admin
-    if (currentUser.role !== 'admin') {
-        return null
-    }
+export default function UsersPage() {
+    const store = useStore();
+    const auth = useAuth();
+    const [users, setUsers] = useState<User[]>([]);
 
-    const users = await getUsers()
+    useEffect(() => {
+        const getUsersOnLoad = async () => {
+            const usersRequest = await getUsers(auth.user?.id_token!)
+            if (usersRequest.success)
+                setUsers(usersRequest.data);
+        }
+        getUsersOnLoad();
+    }, [auth]);
 
     return (
         <>
@@ -43,9 +51,9 @@ export default async function UsersPage() {
                         <CreateUserForm/>
                     </div>
                     <div className="space-y-4">
-                        {users.map((user) => (
+                        {users && users.map((user: User, idx) => (
                             <div
-                                key={user.id}
+                                key={idx}
                                 className="rounded-lg border p-4 flex items-center justify-between"
                             >
                                 <div>
@@ -54,12 +62,12 @@ export default async function UsersPage() {
                                 </div>
                                 <span
                                     className={`px-2 py-1 rounded-full text-sm ${
-                                        user.role === 'admin'
+                                        store.currentUserInAdminGroup
                                             ? 'bg-purple-100 text-purple-800'
                                             : 'bg-blue-100 text-blue-800'
                                     }`}
                                 >
-              {user.role}
+              {store.currentUserInAdminGroup && store.userProfile?.email! == user.email ? 'admin' : 'user'}
             </span>
                             </div>
                         ))}
