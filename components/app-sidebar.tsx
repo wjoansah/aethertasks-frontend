@@ -26,32 +26,13 @@ const data = {
             icon: SquareTerminal,
             isActive: true,
             requiresAdminAccess: false,
-            items: [
-                {
-                    title: "Open",
-                    url: "/dashboard/tasks",
-                },
-                {
-                    title: "Completed",
-                    url: "/dashboard/tasks",
-                },
-                {
-                    title: "All",
-                    url: "/dashboard/tasks",
-                },
-            ],
         },
         {
             title: "Users",
             url: "/dashboard/users",
             icon: Bot,
+            isActive: false,
             requiresAdminAccess: true,
-            items: [
-                {
-                    title: "All",
-                    url: "/dashboard/users",
-                },
-            ]
         },
     ],
 }

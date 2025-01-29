@@ -1,24 +1,16 @@
 "use client"
 
-import {ChevronRight, type LucideIcon} from "lucide-react"
-
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+import {type LucideIcon} from "lucide-react"
 import {
     SidebarGroup,
     SidebarGroupLabel,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarMenuSub,
-    SidebarMenuSubButton,
-    SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 import Link from "next/link";
 import {useStore} from '@/store'
+import {useState} from "react";
 
 export function NavMain({
                             items,
@@ -29,53 +21,28 @@ export function NavMain({
         icon?: LucideIcon
         isActive?: boolean
         requiresAdminAccess: boolean,
-        items?: {
-            title: string
-            url: string
-        }[]
     }[]
 }) {
     const store = useStore()
     const filteredItems = items.filter(
         item => !item.requiresAdminAccess || (item.requiresAdminAccess && store.currentUserInAdminGroup)
     )
+    const [activeItem, setActiveItem] = useState<string>(items[0].title)
     return (
         <SidebarGroup>
             <SidebarGroupLabel>Platform</SidebarGroupLabel>
             <SidebarMenu>
                 {filteredItems.map((item) => (
-                        <Collapsible
-                            key={item.title}
-                            asChild
-                            defaultOpen={item.isActive}
-                            className="group/collapsible"
-                        >
-                            <SidebarMenuItem>
-                                <CollapsibleTrigger asChild>
-                                    <SidebarMenuButton tooltip={item.title}>
-                                        {item.icon && <item.icon/>}
-                                        <span>{item.title}</span>
-                                        <ChevronRight
-                                            className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"/>
-                                    </SidebarMenuButton>
-                                </CollapsibleTrigger>
-                                <CollapsibleContent>
-                                    <SidebarMenuSub>
-                                        {item.items?.map((subItem) => (
-                                            <SidebarMenuSubItem key={subItem.title}>
-                                                <SidebarMenuSubButton asChild>
-                                                    <Link href={subItem.url}>
-                                                        <span>{subItem.title}</span>
-                                                    </Link>
-                                                </SidebarMenuSubButton>
-                                            </SidebarMenuSubItem>
-                                        ))}
-                                    </SidebarMenuSub>
-                                </CollapsibleContent>
-                            </SidebarMenuItem>
-                        </Collapsible>
-                    )
-                )}
+                    <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild isActive={item.title === activeItem}
+                                           onClick={() => setActiveItem(item.title)}>
+                            <Link href={item.url}>
+                                {item.icon && <item.icon/>}
+                                {item.title}
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                ))}
             </SidebarMenu>
         </SidebarGroup>
     )
