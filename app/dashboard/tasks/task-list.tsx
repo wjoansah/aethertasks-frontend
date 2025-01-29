@@ -55,7 +55,7 @@ export function TaskList({tasks, currentUserIsAdmin, users}: {
             </span>
                     </div>
                     <p className="text-sm text-muted-foreground">{task.description}</p>
-                    <div className="text-sm">
+                    <div className="text-sm flex flex-col gap-2">
                         {currentUserIsAdmin && (
                             <p>Responsibility: {task.responsibility}</p>
                         )}
