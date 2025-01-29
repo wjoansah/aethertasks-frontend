@@ -10,7 +10,7 @@ export type Task = {
     name: string
     description: string
     status: TaskStatus,
-    deadline: string
+    deadline: number
     responsibility: string
     completed_at?: string
     user_comment?: string
