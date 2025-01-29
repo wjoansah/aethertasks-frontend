@@ -54,8 +54,11 @@ export function UpdateTaskForm({task, users}: { task: Task, users: User[] }) {
                     id="deadline"
                     name="deadline"
                     type="datetime-local"
-                    defaultValue={task.deadline}
-                    onChange={(value) => setTaskUpdates({...taskUpdates, deadline: value.target.value})}
+                    defaultValue={new Date(task.deadline).toISOString().slice(0, -1)}
+                    onChange={(value) => setTaskUpdates({
+                        ...taskUpdates,
+                        deadline: new Date(value.target.value).getTime()
+                    })}
                     required
                 />
             </div>
