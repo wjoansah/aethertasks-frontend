@@ -25,7 +25,7 @@ export async function createUser(formData: FormData, idToken: string) {
 
     const body = await response.json()
 
-    revalidatePath('/dashboard/users')
+    revalidatePath('/dashboard/users', 'page')
     return {success: true, data: body}
 }
 
@@ -43,7 +43,7 @@ export async function getUsers(idToken: string) {
         const emailAttribute = response.Attributes.find((attr: any) => attr.Name === "email")
         const nameAttribute = response.Attributes.find((attr: any) => attr.Name === "name")
 
-        revalidatePath('/dashboard/users')
+        revalidatePath('/dashboard/users', 'page')
         return {
             email: emailAttribute.Value,
             name: nameAttribute.Value

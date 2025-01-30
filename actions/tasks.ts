@@ -10,7 +10,7 @@ export async function createTask(formData: FormData, idToken: string) {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
         status: 'open',
-        deadline: formData.get('deadline') as string,
+        deadline: Number(formData.get('deadline') as string),
         responsibility: formData.get('responsibility') as string,
     }
 
@@ -23,7 +23,7 @@ export async function createTask(formData: FormData, idToken: string) {
     })
 
     if (response.ok) {
-        revalidatePath('/dashboard/tasks')
+        revalidatePath('/dashboard/tasks', 'page')
         return {success: true}
     }
 
@@ -35,7 +35,7 @@ export async function updateTask(id: string, formData: FormData, idToken: string
         name: formData.get('name') as string,
         description: formData.get('description') as string,
         status: formData.get('status') as TaskStatus,
-        deadline: formData.get('deadline') as string,
+        deadline: Number(formData.get('deadline') as string),
         responsibility: formData.get('responsibility') as string,
     }
 
@@ -48,7 +48,7 @@ export async function updateTask(id: string, formData: FormData, idToken: string
     })
 
     if (response.ok) {
-        revalidatePath('/dashboard/tasks')
+        revalidatePath('/dashboard/tasks', 'page')
         return {success: true}
     }
     return {success: false, error: response.statusText}
