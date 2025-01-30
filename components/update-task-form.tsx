@@ -16,10 +16,12 @@ import {useStore} from "@/store";
 import {useAuth} from "react-oidc-context";
 import {updateTask} from "@/actions/tasks";
 import {useState} from "react";
+import {useRouter} from 'next/navigation'
 
 export function UpdateTaskForm({task, users}: { task: Task, users: User[] }) {
     const store = useStore();
     const auth = useAuth();
+    const router = useRouter();
 
     const [taskUpdates, setTaskUpdates] = useState<Partial<Task>>(task);
     const statuses = ["open", "closed", "completed"];
@@ -27,7 +29,10 @@ export function UpdateTaskForm({task, users}: { task: Task, users: User[] }) {
     return (
         <form
             action={async (formData) => {
-                await updateTask(task.id, formData, auth.user?.id_token!);
+                const result = await updateTask(task.id, formData, auth.user?.id_token!);
+                if (result.success) {
+                    router.push('/dashboard/tasks')
+                }
             }}
             className="space-y-4"
         >

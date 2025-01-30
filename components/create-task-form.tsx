@@ -23,10 +23,12 @@ import {createTask} from '@/actions/tasks'
 import {useStore} from "@/store";
 import {User} from "@/types";
 import {useAuth} from "react-oidc-context";
+import {useRouter} from 'next/navigation'
 
 export function CreateTaskForm({users}: { users: User[] }) {
     const store = useStore()
     const auth = useAuth()
+    const router = useRouter()
     const [open, setOpen] = useState(false)
 
     return (
@@ -40,8 +42,11 @@ export function CreateTaskForm({users}: { users: User[] }) {
                 </DialogHeader>
                 <form
                     action={async (formData) => {
-                        await createTask(formData, auth.user?.id_token!)
+                        const result = await createTask(formData, auth.user?.id_token!)
                         setOpen(false)
+                        if (result.success) {
+                            router.push('/dashboard/tasks')
+                        }
                     }}
                     className="space-y-4"
                 >

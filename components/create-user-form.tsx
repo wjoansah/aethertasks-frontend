@@ -14,10 +14,12 @@ import {Label} from '@/components/ui/label'
 import {createUser} from '@/actions/users'
 import {useStore} from '@/store'
 import {useAuth} from "react-oidc-context";
+import {useRouter} from 'next/navigation'
 
 export function CreateUserForm() {
     const store = useStore()
     const auth = useAuth()
+    const router = useRouter()
     const [open, setOpen] = useState(false)
 
     return (
@@ -31,8 +33,11 @@ export function CreateUserForm() {
                 </DialogHeader>
                 <form
                     action={async (formData) => {
-                        await createUser(formData, auth.user?.id_token!)
+                        const result = await createUser(formData, auth.user?.id_token!)
                         setOpen(false)
+                        if (result.success) {
+                            router.push("/dashboard/users")
+                        }
                     }}
                     className="space-y-4"
                 >
