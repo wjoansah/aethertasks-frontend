@@ -7,7 +7,7 @@ const cognitoAuthConfig = {
     client_id: process.env.NEXT_PUBLIC_CLIENT_ID,
     redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI,
     response_type: "code",
-    scope: "email openid",
+    scope: "email openid profile",
 }
 
 export function CognitoAuthProvider({children}: { children: React.ReactNode }) {
