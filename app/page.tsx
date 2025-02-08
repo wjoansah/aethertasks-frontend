@@ -4,11 +4,8 @@ import {useAuth} from "react-oidc-context";
 import {Button} from "@/components/ui/button";
 import {GalleryVerticalEnd} from "lucide-react";
 import {redirect} from "next/navigation";
-import {decodeJwt} from "@/lib/utils";
 import {useStore} from '@/store'
-
-
-const adminGroupName = process.env.NEXT_PUBLIC_ADMIN_GROUP_NAME!
+import {UserRole} from "@/types";
 
 export default function Home() {
     const store = useStore()
@@ -24,13 +21,10 @@ export default function Home() {
 
 
     if (auth.isAuthenticated) {
-        if (auth.user?.id_token) {
-            const decodedToken = decodeJwt(auth.user.id_token)!;
-            const userCognitoGroups = decodedToken['cognito:groups'];
-            const isInAdminGroup = userCognitoGroups ? userCognitoGroups.includes(adminGroupName) : false;
-            store.setCurrentUserInAdminGroup(isInAdminGroup)
-        }
         if (auth.user && auth.user.profile) {
+            const userRole = auth.user?.profile?.['custom:role']
+            store.setRole(userRole as unknown as UserRole);
+            store.setUserIsAdmin(userRole === "admin")
             store.setUserProfile(auth.user.profile)
         }
         redirect("/dashboard");
