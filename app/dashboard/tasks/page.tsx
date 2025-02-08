@@ -20,11 +20,11 @@ export default function TasksPage() {
 
     useEffect(() => {
         const getTasksOnLoad = async () => {
-            const tasks = await getTasks(store.currentUserInAdminGroup, auth.user?.id_token!)
-            if (store.currentUserInAdminGroup) {
+            const tasks = await getTasks(store.userIsAdmin, auth.user?.id_token!)
+            if (store.userIsAdmin) {
                 const response = await getUsers(auth.user?.id_token!)
                 if (response.success) {
-                    const filteredUsers = response.data.filter((user: User) => !(store.currentUserInAdminGroup && user.email == store.userProfile?.email))
+                    const filteredUsers = response.data.filter((user: User) => (user.role !== 'admin'))
                     setUsers(filteredUsers);
                 }
             }
@@ -55,11 +55,11 @@ export default function TasksPage() {
                 <div className="container mx-auto py-6 space-y-8">
                     <div className="flex justify-between items-center">
                         <h1 className="text-3xl font-bold">Tasks</h1>
-                        {store.currentUserInAdminGroup && (
+                        {store.userIsAdmin && (
                             <CreateTaskForm users={users}/>
                         )}
                     </div>
-                    <TaskList tasks={tasks} currentUserIsAdmin={store.currentUserInAdminGroup} users={users}/>
+                    <TaskList tasks={tasks} currentUserIsAdmin={store.userIsAdmin} users={users}/>
                 </div>
             </div>
         </>

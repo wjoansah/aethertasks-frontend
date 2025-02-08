@@ -62,12 +62,12 @@ export default function UsersPage() {
                                 </div>
                                 <span
                                     className={`px-2 py-1 rounded-full text-sm ${
-                                        store.currentUserInAdminGroup
+                                        store.userIsAdmin
                                             ? 'bg-purple-100 text-purple-800'
                                             : 'bg-blue-100 text-blue-800'
                                     }`}
                                 >
-              {store.currentUserInAdminGroup && store.userProfile?.email! == user.email ? 'admin' : 'user'}
+              {user.role}
             </span>
                             </div>
                         ))}
