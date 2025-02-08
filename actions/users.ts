@@ -9,6 +9,7 @@ export async function createUser(formData: FormData, idToken: string) {
     const user: User = {
         name: formData.get('name') as string,
         email: formData.get('email') as string,
+        role: formData.get('admin') as unknown as boolean ? "admin" : "user"
     }
 
     const response = await fetch(`${baseUrl}/users/invite`, {
@@ -42,12 +43,14 @@ export async function getUsers(idToken: string) {
     const users = data.users.map((response: any) => {
         const emailAttribute = response.Attributes.find((attr: any) => attr.Name === "email")
         const nameAttribute = response.Attributes.find((attr: any) => attr.Name === "name")
-
-        revalidatePath('/dashboard/users', 'page')
+        const roleAttribute = response.Attributes.find((attr: any) => attr.Name === "custom:role")
         return {
             email: emailAttribute.Value,
-            name: nameAttribute.Value
+            name: nameAttribute.Value,
+            role: roleAttribute.Value
         }
     })
+
+    revalidatePath('/dashboard/users', 'page')
     return {success: true, data: users}
 }
