@@ -30,6 +30,7 @@ export function CreateTaskForm({users}: { users: User[] }) {
     const auth = useAuth()
     const router = useRouter()
     const [open, setOpen] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -42,10 +43,12 @@ export function CreateTaskForm({users}: { users: User[] }) {
                 </DialogHeader>
                 <form
                     action={async (formData) => {
+                        setLoading(true)
                         const result = await createTask(formData, auth.user?.id_token!)
                         setOpen(false)
+                        setLoading(false)
                         if (result.success) {
-                            router.push('/dashboard/tasks')
+                            router.refresh()
                         }
                     }}
                     className="space-y-4"
@@ -77,8 +80,8 @@ export function CreateTaskForm({users}: { users: User[] }) {
                             </SelectContent>
                         </Select>
                     </div>
-                    {store.currentUserInAdminGroup && (
-                        <Button type="submit" className="w-full">
+                    {store.userIsAdmin && (
+                        <Button disabled={loading} type="submit" className="w-full">
                             Create Task
                         </Button>
                     )}

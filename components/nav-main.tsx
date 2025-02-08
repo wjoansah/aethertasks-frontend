@@ -25,7 +25,7 @@ export function NavMain({
 }) {
     const store = useStore()
     const filteredItems = items.filter(
-        item => !item.requiresAdminAccess || (item.requiresAdminAccess && store.currentUserInAdminGroup)
+        item => !item.requiresAdminAccess || (item.requiresAdminAccess && store.userIsAdmin)
     )
     const [activeItem, setActiveItem] = useState<string>(items[0].title)
     return (

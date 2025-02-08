@@ -15,6 +15,7 @@ import {createUser} from '@/actions/users'
 import {useStore} from '@/store'
 import {useAuth} from "react-oidc-context";
 import {useRouter} from 'next/navigation'
+import {Switch} from "@/components/ui/switch";
 
 export function CreateUserForm() {
     const store = useStore()
@@ -36,7 +37,7 @@ export function CreateUserForm() {
                         const result = await createUser(formData, auth.user?.id_token!)
                         setOpen(false)
                         if (result.success) {
-                            router.push("/dashboard/users")
+                            router.refresh()
                         }
                     }}
                     className="space-y-4"
@@ -49,8 +50,12 @@ export function CreateUserForm() {
                         <Label htmlFor="email">Email</Label>
                         <Input id="email" name="email" type="email" required/>
                     </div>
-                    {store.currentUserInAdminGroup && (
-                        <Button type="submit" className="w-full">
+                    <div className="flex items-center space-x-2 ">
+                        <Label htmlFor="admin">Admin</Label>
+                        <Switch id="admin" name="admin"/>
+                    </div>
+                    {store.userIsAdmin && (
+                        <Button disabled={!open} type="submit" className="w-full">
                             Invite User
                         </Button>
                     )}
