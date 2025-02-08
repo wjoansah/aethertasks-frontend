@@ -1,35 +1,43 @@
 import {create} from 'zustand';
 import {persist} from 'zustand/middleware';
 import {UserProfile} from 'oidc-client-ts';
+import {UserRole} from "@/types";
 
 interface AppState {
     userProfile: UserProfile | null;
-    currentUserInAdminGroup: boolean;
+    role: UserRole;
+    userIsAdmin: boolean;
     setUserProfile: (profile: UserProfile) => void;
-    setCurrentUserInAdminGroup: (state: boolean) => void;
+    setUserIsAdmin: (isAdmin: boolean) => void;
+    setRole: (role: UserRole) => void;
 }
 
 export const useStore = create<AppState>()(
     persist(
         (set) => ({
             userProfile: null,
-            currentUserInAdminGroup: false,
+            role: 'user',
+            userIsAdmin: false,
             setUserProfile: (userProfile) =>
                 set((state) => ({
                     ...state,
                     userProfile,
                 })),
-            setCurrentUserInAdminGroup: (value) =>
-                set((state) => ({
-                    ...state,
-                    currentUserInAdminGroup: value,
-                })),
+            setRole: (role: UserRole) => set((state) => ({
+                ...state,
+                role
+            })),
+            setUserIsAdmin: (isAdmin: boolean) => set((state) => ({
+                ...state,
+                userIsAdmin: isAdmin
+            }))
         }),
         {
             name: 'app-state',
             partialize: (state) => ({
                 userProfile: state.userProfile,
-                currentUserInAdminGroup: state.currentUserInAdminGroup,
+                role: state.role,
+                userIsAdmin: state.userIsAdmin,
             }),
         }
     )
