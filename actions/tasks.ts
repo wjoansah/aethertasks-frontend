@@ -10,7 +10,7 @@ export async function createTask(formData: FormData, idToken: string) {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
         status: 'open',
-        deadline: Number(formData.get('deadline') as string),
+        deadline: new Date(formData.get('deadline') as string).getTime(),
         responsibility: formData.get('responsibility') as string,
     }
 
@@ -35,7 +35,7 @@ export async function updateTask(id: string, formData: FormData, idToken: string
         name: formData.get('name') as string,
         description: formData.get('description') as string,
         status: formData.get('status') as TaskStatus,
-        deadline: Number(formData.get('deadline') as string),
+        deadline: new Date(formData.get('deadline') as string).getTime(),
         responsibility: formData.get('responsibility') as string,
     }
 
@@ -59,7 +59,6 @@ export async function markTaskAsComplete(taskId: string, userComment: string, id
         id: taskId,
         userComment: userComment,
     }
-    // const updateTaskEndpoint = isAdmin ? ''
 
     const response = await fetch(`${baseUrl}/tasks/complete`, {
         method: 'PUT',
